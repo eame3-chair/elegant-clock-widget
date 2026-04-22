@@ -4,20 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Clock Widget</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&family=DM+Sans:wght@200;300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&family=DM+Sans:wght@200;300;400;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --bg: transparent;
       --surface: #f5ede9;
       --ink: #1a1a18;
       --ink-muted: #9a8880;
       --accent: #B59259;
+      --accent-light: rgba(181,146,89,0.12);
       --border: rgba(0,0,0,0.08);
+      --divider: rgba(0,0,0,0.06);
       --radius: 16px;
     }
-
     html, body {
       width: 100%;
       height: 100%;
@@ -28,29 +28,27 @@
       font-family: 'DM Mono', monospace;
       padding: 0;
     }
-
     .widget {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 16px 24px 26px;
+      padding: 24px 24px 22px;
       text-align: center;
-      box-shadow: none;
       width: 100%;
       position: relative;
       overflow: hidden;
     }
 
+    /* ── Clock ── */
     .time {
       font-family: 'DM Serif Display', serif;
       font-size: 60px;
       font-weight: 300;
       color: #4a4a46;
-      letter-spacing: 0.02em;
-      line-height: 1;
-      margin-bottom: 5px;
+      letter-spacing: 0.03em;
+      line-height: 0.85;
+      margin-bottom: 0;
     }
-
     .time .colon {
       display: inline-block;
       animation: blink 1s step-start infinite;
@@ -61,67 +59,82 @@
       top: -8px;
       margin: 0 2px;
     }
-
     @keyframes blink {
       0%, 100% { opacity: 1; }
       50%       { opacity: 0.15; }
     }
 
+    /* ── Date container ── */
+    .date-container {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--divider);
+      margin: 7px 0 12px;
+    }
+
+    /* ── Date row ── */
+    .date-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+    }
     .date-label {
       font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 1100;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       color: var(--ink-muted);
-      letter-spacing: 0.09em;
-      margin-top: 6px;
     }
-    
-    .date {
+    .date-value {
       font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 14px;
+      font-weight: 300;
+      letter-spacing: 0.04em;
       color: var(--ink-muted);
-      letter-spacing: 0.08em;
-      margin-top: 7px;
+      line-height: 1;
     }
-    
-    .timezone { display: none; }
   </style>
 </head>
 <body>
   <div class="widget">
 
-    <div class="time" id="time">
+    <div class="time">
       <span id="hh">12</span><span class="colon">:</span><span id="mm">00</span>
     </div>
-    <div class="date-label" id="date-label"></div>
-    <div class="date" id="date"></div>
-    <div class="timezone" id="timezone"></div>
 
+    <div class="date-container">
+      <div class="divider"></div>
+      <div class="date-row">
+        <span class="date-label">Today is:</span>
+        <span class="date-value" id="date-value">—</span>
+      </div>
+    </div>
 
   </div>
-
   <script>
-    const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    document.getElementById('timezone').textContent = tz.replace(/_/g, ' ').replace('/', ' / ');
+    const DAYS_SHORT   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
     function pad(n) { return String(n).padStart(2, '0'); }
 
     function tick() {
       const now = new Date();
-      const h   = now.getHours();
-      const m   = now.getMinutes();
-
-      document.getElementById('hh').textContent = pad(h);
-      document.getElementById('mm').textContent = pad(m);
-
-      document.getElementById('date').textContent =
-        `TODAY IS: ${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
+      document.getElementById('hh').textContent = pad(now.getHours());
+      document.getElementById('mm').textContent = pad(now.getMinutes());
+      const day   = DAYS_SHORT[now.getDay()];
+      const date  = now.getDate();
+      const month = MONTHS_SHORT[now.getMonth()];
+      document.getElementById('date-value').textContent = `${day} ${date} ${month}`;
     }
-
 
     tick();
     setInterval(tick, 1000);
